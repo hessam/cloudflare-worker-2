@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "./deploy.sh",
+    "deploy:direct": "wrangler deploy",
     "test": "node test.js",
     "test:local": "node test-local.js"
   },

@@ -1,113 +1,85 @@
-# Cloudflare Worker - HTML Optimizer (Account 2)
+# Cloudflare Worker - Performance Optimization
 
-High-performance HTML optimization worker for Cloudflare's second account. This worker optimizes HTML pages by removing unnecessary elements, merging styles, and applying performance best practices.
+High-performance HTML optimization worker for seyahatmarket.com that implements advanced performance optimizations without WordPress plugins.
 
-## 🚀 Quick Setup for New Account
+## Features
 
-### 1. Configure Your Domains
-Edit `wrangler.toml` and uncomment the routes section:
-```toml
-routes = [
-  "yoursite.com/*",
-  "www.yoursite.com/*"
-]
-```
+- ✅ Non-render-blocking CSS loading
+- ✅ Image optimization with fetchpriority="high" for LCP images
+- ✅ Preconnect hints for critical external domains
+- ✅ Aggressive caching headers
+- ✅ Resource preload hints
+- ✅ Gravity Forms compatibility
+- ✅ Admin bar removal for non-logged users
 
-### 2. Set API Token for Second Account
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure API Token:**
+   Add your Cloudflare API token to `.env` file:
+   ```
+   CLOUDFLARE_API_TOKEN=your_token_here
+   ```
+
+3. **Run tests:**
+   ```bash
+   npm test
+   ```
+
+## Deployment
+
+### Option 1: Using npm script (recommended)
 ```bash
-export CLOUDFLARE_API_TOKEN="your-second-account-token"
-```
-
-### 3. Deploy
-```bash
-npm install
-npm test
 npm run deploy
 ```
 
-## 📋 Features
-
-- ✅ **Removes unused elements**: Admin bar CSS, duplicate resources, empty meta tags
-- ✅ **Merges inline styles**: Combines multiple `<style>` tags with minification
-- ✅ **Smart filtering**: Skips admin pages, bots, non-HTML requests
-- ✅ **Performance limits**: Circuit breakers prevent excessive CPU usage
-- ✅ **Preserves critical resources**: Doesn't touch analytics, GTM, critical CSS
-
-## 🔧 Configuration
-
-### Per-Site Customization
-The worker is designed to be configurable per site. You can modify these settings in `index.js`:
-
-```javascript
-// Adjust these values for your sites
-this.maxMergedSize = 50000;    // Max 50KB merged styles
-this.maxProcessed = 200;       // Max 200 elements processed
-const circuitBreaker = 50;     // Max 50ms processing time
+### Option 2: Direct wrangler command
+```bash
+wrangler deploy
 ```
 
-### Skip Conditions
-Currently skips:
-- `/wp-admin/` pages
-- `/wp-login.php`
-- URLs with `preview=true`
-- `.xml` and `.json` files
-- `/api/` endpoints
-- Bot user agents
-
-## 🧪 Testing
-
+### Option 3: Using deploy script directly
 ```bash
-# Run validation tests
-npm test
+./deploy.sh
+```
 
-# Start local development server
+## Development
+
+Start local development server:
+```bash
 npm run dev
-
-# Test with curl
-curl http://localhost:8787 -v
 ```
 
-## 📊 Monitoring
+## Routes
 
-After deployment, monitor your worker:
-```bash
-# View live logs
-wrangler tail
+The worker is configured for:
+- `seyahatmarket.com/*`
+- `www.seyahatmarket.com/*`
 
-# Check deployments
-wrangler deployments list
-```
+## Performance Optimizations
 
-## 🔄 Differences from Account 1
+### CSS Optimization
+- Converts render-blocking CSS to non-blocking with `media="print"` + `onload` swap
+- Preserves critical Gravity Forms styles
 
-This repo is a fork of the original worker with these differences:
-- Worker name: `cloudflare-worker-2`
-- Separate GitHub repository
-- Independent deployment and configuration
-- Can have different optimization rules if needed
+### Image Optimization
+- Adds `fetchpriority="high"` to LCP-critical images
+- Elementor images and non-lazy images get priority
 
-## 📚 Documentation
+### Caching Strategy
+- Images: 1 year cache
+- CSS/JS/Fonts: 1 month cache
+- HTML: 1 hour cache
 
-- `test.js` - Validation tests
-- `README.md` - This file
-- Original repo: https://github.com/hessam/cloudflare-worker-1
+### Resource Hints
+- Preconnect to Google Fonts and payment gateways
+- Preload critical theme and plugin resources
 
-## 🚀 Deployment Checklist
+## Security
 
-- [ ] Configure routes in `wrangler.toml`
-- [ ] Set `CLOUDFLARE_API_TOKEN` for second account
-- [ ] Run `npm test` - all tests pass
-- [ ] Deploy with `npm run deploy`
-- [ ] Verify deployment with `wrangler deployments list`
-- [ ] Test live site for `X-Optimized` header
-- [ ] Monitor with `wrangler tail`
-
-## 🆘 Troubleshooting
-
-**403 Errors**: Sites may have Cloudflare security enabled - test in browser
-**No Optimization**: Check routes are configured and active
-**Errors**: Run `wrangler tail` to see live logs
-
-## 📞 Support
-
-Based on the original worker from Account 1. See the original repo for detailed documentation and troubleshooting guides.
+- API tokens are stored in `.env` file (gitignored)
+- Never commit sensitive credentials to version control

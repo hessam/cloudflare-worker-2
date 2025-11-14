@@ -3,7 +3,7 @@ main = "index.js"
 compatibility_date = "2025-02-24"
 workers_dev = true
 
-# Configure routes for seyahatmarket.com
+# Routes enabled for performance optimization (cache headers only)
 routes = [
   "seyahatmarket.com/*",
   "www.seyahatmarket.com/*"
@@ -11,4 +11,4 @@ routes = [
 
 [observability]
 enabled = true
-head_sampling_rate = 1 # optional. default = 1
+head_sampling_rate = 1
