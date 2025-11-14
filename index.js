@@ -176,41 +176,76 @@ export default {
     );
 
     // ============================================
-    // OPTIMIZE IMAGES
+    // OPTIMIZE IMAGES - DYNAMIC LCP DETECTION
     // ============================================
 
-    // Fix specific problematic image (Reservation-768x960.webp)
-    html = html.replace(
-      /(<img[^>]*src=["'][^"']*Reservation-768x960\.webp["'][^>]*)>/gi,
-      (match) => {
-        // Remove existing width/height
-        let cleaned = match.replace(/\s*width=["']\d+["']/gi, '');
-        cleaned = cleaned.replace(/\s*height=["']\d+["']/gi, '');
-        // Add correct dimensions
-        return cleaned + ' width="372" height="465" loading="lazy">';
+    // Function to identify LCP (Largest Contentful Paint) candidates
+    function identifyLCPCandidates(html) {
+      const lcpCandidates = [];
+
+      // Method 1: First image in main content or hero section
+      const mainContentMatch = html.match(/<main[^>]*>[\s\S]*?<\/main>/i) ||
+                              html.match(/<div[^>]*class="[^"]*hero[^"]*"[^>]*>[\s\S]*?<\/div>/i) ||
+                              html.match(/<section[^>]*class="[^"]*hero[^"]*"[^>]*>[\s\S]*?<\/section>/i);
+
+      if (mainContentMatch) {
+        const firstImgInMain = mainContentMatch[0].match(/<img[^>]+src="([^"]+)"/i);
+        if (firstImgInMain) {
+          lcpCandidates.push(firstImgInMain[1]);
+        }
       }
-    );
 
-    // Ensure LCP images have fetchpriority="high"
-    const lcpImages = [
-      'Vize-768x959',
-      'background.webp',
-      'Schengen-Vizesi',
-      'cropped-Seyahat_Market'
-    ];
+      // Method 2: Images with specific classes or in specific positions
+      const knownLCPImages = [
+        'Reservation-768x960',
+        'Vize-768x959',
+        'background.webp',
+        'Schengen-Vizesi',
+        'cropped-Seyahat_Market'
+      ];
 
-    lcpImages.forEach(imageName => {
-      const regex = new RegExp(`(<img[^>]*src=["'][^"']*${imageName}[^"']*["'][^>]*)>`, 'gi');
-      html = html.replace(regex, (match) => {
+      // Method 3: First few images in the page (top 3)
+      const allImages = [];
+      const imgRegex = /<img[^>]+src="([^"]+)"/gi;
+      let match;
+      let count = 0;
+      while ((match = imgRegex.exec(html)) !== null && count < 3) {
+        allImages.push(match[1]);
+        count++;
+      }
+
+      // Combine all candidates, prioritizing known LCP images
+      const allCandidates = [...new Set([...lcpCandidates, ...knownLCPImages, ...allImages.slice(0, 2)])];
+
+      return allCandidates.slice(0, 5); // Limit to 5 candidates
+    }
+
+    const lcpImageUrls = identifyLCPCandidates(html);
+
+    // Apply fetchpriority="high" to LCP candidates
+    lcpImageUrls.forEach(imageUrl => {
+      const urlRegex = new RegExp(`(<img[^>]*src="[^"]*${imageUrl}[^"]*"[^>]*>)`, 'gi');
+      html = html.replace(urlRegex, (match) => {
         // Add fetchpriority if not present
         if (!match.includes('fetchpriority')) {
           // Remove loading="lazy" if present, then add fetchpriority
-          let result = match.replace(/\s*loading=["']lazy["']/gi, '');
+          let result = match.replace(/\s*loading="lazy"/gi, '');
           // Replace the closing > with attributes + >
           return result.slice(0, -1) + ' fetchpriority="high" loading="eager">';
         }
         return match;
       });
+    });
+
+    // Apply lazy loading to other images (not LCP candidates)
+    html = html.replace(/(<img[^>]*src="[^"]*"[^>]*)>/gi, (match) => {
+      // Skip if already has loading attribute or is an LCP candidate
+      if (match.includes('loading=') || match.includes('fetchpriority="high"')) {
+        return match;
+      }
+
+      // Add lazy loading to other images
+      return match.slice(0, -1) + ' loading="lazy">';
     });
 
     // ============================================
