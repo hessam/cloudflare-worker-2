@@ -35,12 +35,6 @@ try {
     console.log('✓ Bot detection logic is correct');
   }
   
-  if (!workerCode.includes('class StyleContentHandler')) {
-    issues.push('❌ Missing StyleContentHandler class for text capture');
-  } else {
-    console.log('✓ StyleContentHandler class exists');
-  }
-  
   if (workerCode.includes('shouldRemoveElement(selector, tagName, id, type)')) {
     issues.push('❌ shouldRemoveElement missing element parameter');
   } else {

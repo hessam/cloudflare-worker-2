@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test page for worker optimization">
+  <meta name="empty-meta" content="">
+  <title>Test HTML Page</title>
+  
+  <!-- These should be removed (admin bar, not logged in) -->
+  <link id="wpcode-admin-bar-css-css" rel="stylesheet" href="/wp-admin/admin-bar.css">
+  <link id="dashicons-css" rel="stylesheet" href="/wp-includes/dashicons.css">
+  
+  <!-- Duplicate Google Fonts (second should be removed) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Redundant DNS prefetch (should be removed) -->
+  <link href="//code.jquery.com" rel="dns-prefetch">
+  
+  <!-- These inline styles should be merged -->
+  <style>
+    body { margin: 0; padding: 0; }
+  </style>
+  
+  <style id="custom-style">
+    .container { max-width: 1200px; margin: 0 auto; }
+  </style>
+  
+  <style>
+    /* This is a comment that should be removed */
+    .header { background: #333; color: white; }
+  </style>
+  
+  <!-- Critical CSS should NOT be merged -->
+  <style id="critical-css">
+    .above-fold { display: block; }
+  </style>
+  
+  <!-- Template script that should be removed -->
+  <script id="freeze-table-template" type="text/html">
+    <div>Template content</div>
+  </script>
+  
+  <!-- Regular inline script (should get defer attribute) -->
+  <script>
+    console.log('Regular script');
+  </script>
+  
+  <!-- Analytics script should NOT be modified -->
+  <script id="analytics-script">
+    console.log('Analytics tracking');
+  </script>
+  
+  <!-- GTM should NOT be modified -->
+  <script id="gtm-script">
+    console.log('GTM code');
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Test Page</h1>
+    <p>This page tests the Cloudflare Worker HTML optimizer.</p>
+  </div>
+</body>
+</html>
