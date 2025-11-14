@@ -29,6 +29,7 @@ async function handleRequest(request) {
 
 class HeadOptimizer {
   constructor(cookies) {
+    this.resourceOptimizer = new ResourceOptimizer();
     this.cookies = cookies;
     this.elementsToRemove = new Set([
       // Admin CSS (already working, kept for reference)
@@ -53,6 +54,14 @@ class HeadOptimizer {
     const href = element.getAttribute("href");
     const rel = element.getAttribute("rel");
 
+    // Add preload hints for critical resources
+    if (tagName === "link" && rel === "stylesheet" && href && this.resourceOptimizer.isCritical(href)) {
+      this.resourceOptimizer.addPreloadHint(href, "style");
+    }
+    if (tagName === "script" && src && this.resourceOptimizer.isCritical(src)) {
+      this.resourceOptimizer.addPreloadHint(src, "script");
+    }
+
     // Construct selector for matching
     let selector = tagName;
     if (id) selector += `[id="${id}"]`;
@@ -74,5 +83,43 @@ class HeadOptimizer {
     if (tagName === "script" && !src && !element.textContent.includes("gtm.js")) {
       element.setAttribute("defer", "");
     }
+  }
+
+  after() {
+    // Inject preload hints at the end of head
+    if (this.resourceOptimizer.preloadHints.length > 0) {
+      return new Response(this.resourceOptimizer.injectPreloadHints(), {
+        headers: { "content-type": "text/html" }
+      });
+    }
+  }
+}
+
+
+
+class ResourceOptimizer {
+  constructor() {
+    this.preloadHints = [];
+    this.criticalResources = new Set([
+      'wp-content/themes/',  // Theme CSS/JS
+      'wp-includes/css/',    // Core WordPress CSS
+      'wp-content/plugins/elementor/', // Elementor critical resources
+    ]);
+  }
+
+  addPreloadHint(href, as, type = 'preload') {
+    if (href && !this.preloadHints.some(h => h.href === href)) {
+      this.preloadHints.push({ href, as, type });
+    }
+  }
+
+  isCritical(href) {
+    return Array.from(this.criticalResources).some(critical => href && href.includes(critical));
+  }
+
+  injectPreloadHints() {
+    return this.preloadHints.map(hint => 
+      `<link rel="${hint.type}" href="${hint.href}" as="${hint.as}"${hint.type === 'preload' ? ' crossorigin' : ''}>`
+    ).join('\n');
   }
 }
