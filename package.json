@@ -1,0 +1,19 @@
+{
+  "name": "cloudflare-worker-2",
+  "version": "1.0.0",
+  "description": "High-performance HTML optimization worker for Cloudflare - Account 2",
+  "main": "index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test.js",
+    "test:local": "node test-local.js"
+  },
+  "keywords": ["cloudflare", "worker", "html", "optimization"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "miniflare": "^3.0.0"
+  }
+}

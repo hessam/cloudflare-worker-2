@@ -1,7 +1,16 @@
-name = "cloudflare-worker-1"
+name = "cloudflare-worker-2"
 main = "index.js"
 compatibility_date = "2025-02-24"
 workers_dev = true
+
+# Configure routes for your second account's domains
+# Uncomment and replace with your actual domains:
+# routes = [
+#   "yoursite.com/*",
+#   "www.yoursite.com/*",
+#   "anotherexample.net/*"
+# ]
+
 [observability]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
