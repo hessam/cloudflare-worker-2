@@ -1,0 +1,7 @@
+name = "cloudflare-worker-1"
+main = "index.js"
+compatibility_date = "2025-02-24"
+workers_dev = true
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
